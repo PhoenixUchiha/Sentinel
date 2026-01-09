@@ -52,39 +52,65 @@ async function handleModal(interaction, client, collections) {
 async function handleSelectMenu(interaction, client, collections) {
     if (interaction.customId === 'help_menu') {
         const category = interaction.values[0];
+
+        if (category === 'help_home') {
+            const totalCommands = collections.slashCommands.size + collections.contextCommands.size + new Set(collections.prefixCommands.values()).size;
+            const homeEmbed = new EmbedBuilder()
+                .setTitle(`🛡️ ${client.user?.username || 'Sentinel'} Information Dashboard`)
+                .setColor('#FF4B4B')
+                .setThumbnail(client.user?.displayAvatarURL({ dynamic: true }) || null)
+                .setDescription(
+                    `Welcome to the **Sentinel** help menu. Use the selection menu below to navigate through different module categories and explore my capabilities.\n\n` +
+                    `**System Overview**\n` +
+                    `> 📊 **Total Commands:** \`${totalCommands}\` commands loaded\n` +
+                    `> 🌐 **Network:** Monitoring \`${client.guilds.cache.size}\` servers\n` +
+                    `> 👥 **Users:** Serving \`${client.guilds.cache.reduce((acc, guild) => acc + (guild.memberCount || 0), 0).toLocaleString()}\` members\n` +
+                    `> 📡 **Status:** Shard ID \`#${client.shard?.ids[0] ?? 0}\` Operational`
+                )
+                .setImage("https://media.discordapp.net/attachments/982652732911542402/1459243271820939317/standard.gif?ex=696291b3&is=69614033&hm=f468b68cfb970a5b1921e338a790668c8c0d130c0b4255189b2b14554a1414c9&=&width=1360&height=480")
+                .setFooter({
+                    text: `${client.user?.username} Security Engine • Advanced Protection`,
+                    iconURL: client.user?.displayAvatarURL()
+                });
+
+            return await interaction.update({ embeds: [homeEmbed] });
+        }
+
         let commands = [];
         let title = '';
+        let description = '';
 
         switch (category) {
             case 'help_setups':
-                title = '🛠️ Setups Commands';
-                commands = ['config-logs', 'verify-setup'];
+                title = '🛠️ Server Setup Modules';
+                description = 'Essential configuration tools for guild management and initial setup.';
+                commands = ['config-logs', 'verify-setup', 'modlog', 'trusted-role'];
                 break;
             case 'help_mod':
-                title = '🛡️ Moderation Commands';
-                commands = ['warn', 'warnings', 'clear-warnings', 'kick', 'ban', 'timeout', 'purge', 'slowmode', 'lock', 'unlock', 'vc-mod'];
-                break;
-            case 'help_voice':
-                title = '🎙️ Voice Commands';
-                commands = ['vc-mod kick', 'vc-mod mute', 'vc-mod unmute', 'Report Voice Activity (Context)'];
+                title = '🛡️ Content Moderation';
+                description = 'Powerful tools to maintain order and discipline within your community.';
+                commands = ['warn', 'warnings', 'clear-warnings', 'kick', 'ban', 'softban', 'massban', 'timeout', 'unmute', 'purge', 'slowmode', 'lock', 'unlock', 'nuke', 'case', 'note'];
                 break;
             case 'help_security':
-                title = '🔒 Security Commands';
-                commands = ['anti-raid'];
+                title = '🔒 Advanced Security & Voice';
+                description = 'Enterprise-grade protection against raids, soundboard spam, and risky accounts.';
+                commands = ['anti-raid', 'alt-check', 'quarantine', 'vc-mod', 'automod'];
                 break;
             case 'help_utility':
-                title = '⚙️ Utility Commands';
-                commands = ['ping', 'help'];
+                title = '⚙️ Utility & Operations';
+                description = 'General purpose tools for system status and administrative tasks.';
+                commands = ['ping', 'help', 'db-stats', 'invites', 'role-menu', 'user-info'];
                 break;
         }
 
         const embed = new EmbedBuilder()
             .setTitle(title)
             .setColor('#FF4B4B')
-            .setDescription(commands.map(cmd => `\`/${cmd}\``).join(', ') || 'No commands found.')
-            .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
+            .setDescription(`> ${description}\n\n**Available Commands**\n${commands.map(cmd => `\`/${cmd}\``).join('  ') || 'No commands listed.'}`)
+            .setThumbnail(client.user?.displayAvatarURL({ dynamic: true }))
+            .setFooter({ text: `Sentinel Intelligence System • Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
 
-        await interaction.reply({ embeds: [embed], ephemeral: true });
+        await interaction.update({ embeds: [embed] });
     }
 }
 
