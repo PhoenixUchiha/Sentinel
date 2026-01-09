@@ -9,6 +9,6 @@ module.exports = {
         Logger.info(`Ready to serve in ${client.guilds.cache.size} guilds.`);
 
         // Set Listening Activity
-        client.user.setActivity('Slash Commands', { type: ActivityType.Listening });
+        client.user.setActivity('Type /help', { type: ActivityType.Listening });
     }
 };
